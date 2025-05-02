@@ -4,6 +4,7 @@ import json
 import requests
 import wget
 import zipfile36 as zipfile
+import undetected_chromedriver as uc
 from urllib.parse import urlparse, parse_qs
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -94,32 +95,50 @@ def download_and_extract_chromedriver():
 #     chrome_options.binary_location = "/usr/bin/chromium-browser"  # Path to Chromium
 #     return webdriver.Chrome(options=chrome_options)
 
+# def initialize_driver():
+#     options = Options()
+#     options.add_argument("--headless=new")
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--disable-dev-shm-usage")
+#     options.add_argument("--window-size=1920,1080")
+#     options.add_argument("--disable-gpu")
+#     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
+    
+#     # For Render's Ubuntu environment
+#     options.binary_location = "/usr/bin/chromium-browser"
+    
+#     # Disable automation flags
+#     options.add_experimental_option("excludeSwitches", ["enable-automation"])
+#     options.add_experimental_option("useAutomationExtension", False)
+    
+#     driver = webdriver.Chrome(options=options)
+    
+#     # Stealth modifications
+#     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+#         "source": """
+#         Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+#         Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3]});
+#         """
+#     })
+    
+#     return driver
+
 def initialize_driver():
-    options = Options()
+    options = uc.ChromeOptions()
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--disable-gpu")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-    
-    # For Render's Ubuntu environment
     options.binary_location = "/usr/bin/chromium-browser"
     
-    # Disable automation flags
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option("useAutomationExtension", False)
+    # Anti-detection config
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
     
-    driver = webdriver.Chrome(options=options)
-    
-    # Stealth modifications
-    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
-        "source": """
-        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3]});
-        """
-    })
-    
+    driver = uc.Chrome(
+        options=options,
+        version_main=119,  # Match your Chrome version
+        driver_executable_path="/usr/bin/chromedriver"
+    )
     return driver
 
 
