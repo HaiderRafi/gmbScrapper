@@ -86,13 +86,41 @@ def download_and_extract_chromedriver():
 #     return driver
 
 # Replace ChromeDriver download with system Chromium// uncomment when deploy on server and comment above one
+# def initialize_driver():
+#     chrome_options = Options()
+#     chrome_options.add_argument("--headless=new")
+#     chrome_options.add_argument("--no-sandbox")
+#     chrome_options.add_argument("--disable-dev-shm-usage")
+#     chrome_options.binary_location = "/usr/bin/chromium-browser"  # Path to Chromium
+#     return webdriver.Chrome(options=chrome_options)
+
 def initialize_driver():
-    chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.binary_location = "/usr/bin/chromium-browser"  # Path to Chromium
-    return webdriver.Chrome(options=chrome_options)
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--disable-gpu")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
+    
+    # For Render's Ubuntu environment
+    options.binary_location = "/usr/bin/chromium-browser"
+    
+    # Disable automation flags
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
+    
+    driver = webdriver.Chrome(options=options)
+    
+    # Stealth modifications
+    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+        "source": """
+        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+        Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3]});
+        """
+    })
+    
+    return driver
 
 
 # Step 4: Scrape data from the kgmid-based URL
